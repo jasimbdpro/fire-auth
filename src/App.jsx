@@ -7,7 +7,7 @@ function App() {
 
   return (
     <>
-      <h3>Hlloe</h3>
+      <h3>Hlloed</h3>
       <MainComponent></MainComponent>
 
     </>
