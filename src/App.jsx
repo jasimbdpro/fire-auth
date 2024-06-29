@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { initializeApp } from 'firebase/app'
-import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 
 
 const App = () => {
-  const [user, setUser] = useState({
+  const [newUser, setNewUser] = useState(false);
+  const [accountUser, setAccountUser] = useState({
     isSignedIn: false,
+    newUserInfo: false,
     name: '',
     email: '',
     password: '',
@@ -33,15 +35,15 @@ const App = () => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
         console.log(token)
-        if (result.user) {
-          const { displayName, photoURL, email } = result.user;
+        if (result.accountUser) {
+          const { displayName, photoURL, email } = result.accountUser;
           const signedInUser = {
             isSignedIn: true,
             name: displayName,
             email: email,
             photo: photoURL,
           }
-          setUser(signedInUser)
+          setAccountUser(signedInUser)
         }
 
       })
@@ -57,13 +59,13 @@ const App = () => {
     signOut(auth)
       .then(() => {
 
-        const user = {
+        const accountUser = {
           inSignedIn: false,
           name: '',
           email: '',
           photo: ''
         }
-        setUser(user)
+        setAccountUser(accountUser)
       })
       .catch((error) => {
         console.log(error)
@@ -80,9 +82,9 @@ const App = () => {
       isFieldValid = isPasswordValid && passwordHasNumber
     }
     if (isFieldValid) {
-      const newUserInfo = { ...user }
+      const newUserInfo = { ...accountUser }
       newUserInfo[event.target.name] = event.target.value
-      setUser(newUserInfo)
+      setAccountUser(newUserInfo)
 
     }
   }
@@ -91,27 +93,40 @@ const App = () => {
     e.preventDefault();
     // console.log("Submit button clicked");
 
-    if (user.email && user.password) {
+    if (newUser && accountUser.email && accountUser.password) {
       const auth = getAuth();
-      createUserWithEmailAndPassword(auth, user.email, user.password)
+      createUserWithEmailAndPassword(auth, accountUser.email, accountUser.password)
         .then((userCredential) => {
           console.log("User created:", userCredential.user);
 
-          const newUserInfo = { ...user, success: true, error: '' };
-          setUser(newUserInfo);
+          const newUserInfo = { ...accountUser, success: true, error: '' };
+          setAccountUser(newUserInfo);
 
           // Signed up
-          const createdUser = userCredential.user;
-          console.log(createdUser.email, createdUser.displayName);
+          const user = userCredential.user;
+          console.log(user.email, user.displayName);
         })
         .catch((error) => {
-          console.log("Error creating user:", error.message);
+          console.log("Error creating users:", error.message);
 
-          const newUserInfo = { ...user, error: error.message, success: false };
-          setUser(newUserInfo);
+          const newUserInfo = { ...accountUser, error: error.message, success: false };
+          setAccountUser(newUserInfo);
         });
-    } else {
-      console.log("Email or password is missing.");
+    }
+    if (!newUser && accountUser.email && accountUser.password) {
+      const auth = getAuth();
+      signInWithEmailAndPassword(auth, accountUser.email, accountUser.password)
+        .then((userCredential) => {
+          // Signed in 
+          const user = userCredential.user;
+          const newUserInfo = { ...accountUser, success: true, error: '' }
+          setAccountUser(newUserInfo)
+          // ...
+        })
+        .catch((error) => {
+          const newUserInfo = { ...accountUser, success: false, error: error.message }
+          setAccountUser(newUserInfo)
+        });
     }
   };
 
@@ -119,21 +134,22 @@ const App = () => {
   return (
     <div>
       {
-        user.isSignedIn ?
+        accountUser.isSignedIn ?
           <button onClick={handleSignOut}>Sign out</button> :
           <button onClick={handleSignIn}>Sign in with Google</button>
       }
       <br />
 
       {
-        user.isSignedIn && <div> <p> {user.name}, You are successfully Logged in. </p> <p>Your email: {user.email} </p> <img src={user.photo && user.photo} alt="" /></div>
+        accountUser.isSignedIn && <div> <p> {accountUser.name}, You are successfully Logged in. </p> <p>Your email: {accountUser.email} </p> <img src={accountUser.photo && accountUser.photo} alt="" /></div>
       }
 
       <h1>Our Authentication System</h1>
 
-
+      <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser22" />
+      <label htmlFor="newUser22">New User Sign Up</label>
       <form onSubmit={handleSubmit}>
-        <input type="text" name="name" onBlur={handleBlur} id="" placeholder='your name' />
+        {newUser && <input type="text" name="name" onBlur={handleBlur} id="" placeholder='your name' />}
         <br />
         <input type="text" name='email' onBlur={handleBlur} required placeholder='Enter your email' />
         <br />
@@ -142,9 +158,9 @@ const App = () => {
         <input type="submit" value="Submit" />
 
       </form>
-      <p style={{ color: 'red' }} >{user.error}</p>
+      <p style={{ color: 'red' }} >{accountUser.error}</p>
       {
-        user.success && <p style={{ color: 'green' }} >Account created successfully</p>
+        accountUser.success && <p style={{ color: 'green' }} >Account {newUser ? 'created' : 'logged in'} successfully</p>
       }
 
     </div>
