@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { initializeApp } from 'firebase/app'
-import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth';
 
 
 const App = () => {
@@ -77,7 +77,7 @@ const App = () => {
       isFieldValid = /^\S+@\S+\.\S+$/.test(event.target.value)
     }
     if (event.target.name === 'password') {
-      const isPasswordValid = event.target.value.length > 6
+      const isPasswordValid = event.target.value.length > 5
       const passwordHasNumber = /\d{1}/.test(event.target.value)
       isFieldValid = isPasswordValid && passwordHasNumber
     }
@@ -105,6 +105,7 @@ const App = () => {
           // Signed up
           const user = userCredential.user;
           console.log(user.email, user.displayName);
+          updateNameOfUser(accountUser.name)
         })
         .catch((error) => {
           console.log("Error creating users:", error.message);
@@ -119,8 +120,9 @@ const App = () => {
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
-          const newUserInfo = { ...accountUser, success: true, error: '' }
+          const newUserInfo = { ...accountUser, name: user.displayName, success: true, error: '' }
           setAccountUser(newUserInfo)
+
           // ...
         })
         .catch((error) => {
@@ -129,6 +131,19 @@ const App = () => {
         });
     }
   };
+  const updateNameOfUser = name => {
+    const auth = getAuth();
+    updateProfile(auth.currentUser, {
+      displayName: name
+    }).then(() => {
+      // Profile updated!
+      // ...
+    }).catch((error) => {
+      // An error occurred
+      // ...
+    });
+
+  }
 
 
   return (
@@ -149,7 +164,7 @@ const App = () => {
       <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser22" />
       <label htmlFor="newUser22">New User Sign Up</label>
       <form onSubmit={handleSubmit}>
-        {newUser && <input type="text" name="name" onBlur={handleBlur} id="" placeholder='your name' />}
+        {newUser && <input type="text" required name="name" onBlur={handleBlur} id="" placeholder='your name' />}
         <br />
         <input type="text" name='email' onBlur={handleBlur} required placeholder='Enter your email' />
         <br />
@@ -160,7 +175,7 @@ const App = () => {
       </form>
       <p style={{ color: 'red' }} >{accountUser.error}</p>
       {
-        accountUser.success && <p style={{ color: 'green' }} >Account {newUser ? 'created' : 'logged in'} successfully</p>
+        accountUser.success && <p style={{ color: 'green' }} > {accountUser.name}, Account {newUser ? 'created' : 'logged in'} successfully</p>
       }
 
     </div>
