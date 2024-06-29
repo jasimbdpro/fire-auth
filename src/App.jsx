@@ -10,6 +10,8 @@ const App = () => {
     email: '',
     password: '',
     photo: '',
+    success: false,
+    error: '',
   });
   const provider = new GoogleAuthProvider();
 
@@ -31,19 +33,20 @@ const App = () => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
         console.log(token)
-        const { displayName, photoURL, email } = result.user;
-        const signedInUser = {
-          isSignedIn: true,
-          name: displayName,
-          email: email,
-          photo: photoURL,
+        if (result.user) {
+          const { displayName, photoURL, email } = result.user;
+          const signedInUser = {
+            isSignedIn: true,
+            name: displayName,
+            email: email,
+            photo: photoURL,
+          }
+          setUser(signedInUser)
         }
-        setUser(signedInUser)
 
       })
       .catch((error) => {
-        const errorCode = error.code;
-        console.log(errorCode)
+
         const errorMessage = error.message;
         console.log(errorMessage)
       })
@@ -77,31 +80,40 @@ const App = () => {
       isFieldValid = isPasswordValid && passwordHasNumber
     }
     if (isFieldValid) {
-      const newUserInfor = { ...user }
-      newUserInfor[event.target.name] = event.target.value
-      setUser(newUserInfor)
+      const newUserInfo = { ...user }
+      newUserInfo[event.target.name] = event.target.value
+      setUser(newUserInfo)
 
     }
   }
+
   const handleSubmit = (e) => {
-    console.log(user.email, user.password)
+    e.preventDefault();
+    // console.log("Submit button clicked");
+
     if (user.email && user.password) {
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, user.email, user.password)
         .then((userCredential) => {
-          // Signed up 
-          const user = userCredential.user;
-          // ...
+          console.log("User created:", userCredential.user);
+
+          const newUserInfo = { ...user, success: true, error: '' };
+          setUser(newUserInfo);
+
+          // Signed up
+          const createdUser = userCredential.user;
+          console.log(createdUser.email, createdUser.displayName);
         })
         .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // ..
-        });
+          console.log("Error creating user:", error.message);
 
+          const newUserInfo = { ...user, error: error.message, success: false };
+          setUser(newUserInfo);
+        });
+    } else {
+      console.log("Email or password is missing.");
     }
-    e.preventDefault();
-  }
+  };
 
 
   return (
@@ -119,6 +131,7 @@ const App = () => {
 
       <h1>Our Authentication System</h1>
 
+
       <form onSubmit={handleSubmit}>
         <input type="text" name="name" onBlur={handleBlur} id="" placeholder='your name' />
         <br />
@@ -129,6 +142,10 @@ const App = () => {
         <input type="submit" value="Submit" />
 
       </form>
+      <p style={{ color: 'red' }} >{user.error}</p>
+      {
+        user.success && <p style={{ color: 'green' }} >Account created successfully</p>
+      }
 
     </div>
   );
