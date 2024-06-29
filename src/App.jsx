@@ -8,6 +8,7 @@ const App = () => {
     isSignedIn: false,
     name: '',
     email: '',
+    password: '',
     photo: '',
   });
   const provider = new GoogleAuthProvider();
@@ -65,6 +66,32 @@ const App = () => {
         console.log(error)
       })
   }
+  const handleBlur = (event) => {
+    let isFieldValid = true;
+    if (event.target.name === 'email') {
+      isFieldValid = /^\S+@\S+\.\S+$/.test(event.target.value)
+    }
+    if (event.target.name === 'password') {
+      const isPasswordValid = event.target.value.length > 6
+      const passwordHasNumber = /\d{1}/.test(event.target.value)
+      isFieldValid = isPasswordValid && passwordHasNumber
+    }
+    if (isFieldValid) {
+      const newUserInfor = { ...user }
+      newUserInfor[event.target.name] = event.target.value
+      setUser(newUserInfor)
+
+    }
+  }
+  const handleSubmit = (e) => {
+    console.log(user.email, user.password)
+    if (user.email && user.password) {
+      console.log('submitting')
+    }
+    e.preventDefault();
+  }
+
+
   return (
     <div>
       {
@@ -78,6 +105,18 @@ const App = () => {
         user.isSignedIn && <div> <p> {user.name}, You are successfully Logged in. </p> <p>Your email: {user.email} </p> <img src={user.photo && user.photo} alt="" /></div>
       }
 
+      <h1>Our Authentication System</h1>
+
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="name" onBlur={handleBlur} id="" placeholder='your name' />
+        <br />
+        <input type="text" name='email' onBlur={handleBlur} required placeholder='Enter your email' />
+        <br />
+        <input type="password" name='password' onBlur={handleBlur} required placeholder='Enter your passoword' />
+        <br />
+        <input type="submit" value="Submit" />
+
+      </form>
 
     </div>
   );
