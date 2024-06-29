@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { initializeApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 
 const App = () => {
@@ -14,12 +14,12 @@ const App = () => {
   const provider = new GoogleAuthProvider();
 
   const firebaseConfig = {
-    apiKey: "AIzaSyCCuIunyXGA3Qxv8dJusKOPtr3BEkpxMYQ",
-    authDomain: "ema-john-simple-905c1.firebaseapp.com",
-    projectId: "ema-john-simple-905c1",
-    storageBucket: "ema-john-simple-905c1.appspot.com",
-    messagingSenderId: "620555579422",
-    appId: "1:620555579422:web:4f78697948a35cb4ab7e0f"
+    apiKey: "AIzaSyDtJmJoeI6buRwNeabbzgMwZfHgZelAXD4",
+    authDomain: "fire-auth-2-1fe09.firebaseapp.com",
+    projectId: "fire-auth-2-1fe09",
+    storageBucket: "fire-auth-2-1fe09.appspot.com",
+    messagingSenderId: "560919570434",
+    appId: "1:560919570434:web:f1afab6763ff67b4529f1b"
   }
   const app = initializeApp(firebaseConfig)
   const auth = getAuth(app);
@@ -86,7 +86,19 @@ const App = () => {
   const handleSubmit = (e) => {
     console.log(user.email, user.password)
     if (user.email && user.password) {
-      console.log('submitting')
+      const auth = getAuth();
+      createUserWithEmailAndPassword(auth, user.email, user.password)
+        .then((userCredential) => {
+          // Signed up 
+          const user = userCredential.user;
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+        });
+
     }
     e.preventDefault();
   }
