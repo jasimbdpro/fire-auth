@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { initializeApp } from 'firebase/app'
-import { createUserWithEmailAndPassword, FacebookAuthProvider, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth';
 
 
 const App = () => {
@@ -15,6 +15,7 @@ const App = () => {
     success: false,
     error: '',
   });
+
   const provider = new GoogleAuthProvider();
 
   const firebaseConfig = {
@@ -35,8 +36,8 @@ const App = () => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
         console.log(token)
-        if (result.accountUser) {
-          const { displayName, photoURL, email } = result.accountUser;
+        if (result.user) {
+          const { displayName, photoURL, email } = result.user;
           const signedInUser = {
             isSignedIn: true,
             name: displayName,
@@ -52,34 +53,6 @@ const App = () => {
         const errorMessage = error.message;
         console.log(errorMessage)
       })
-  }
-
-  const handleFbSignIn = () => {
-    const provider = new FacebookAuthProvider();
-    const auth = getAuth();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // The signed-in user info.
-        const user = result.user;
-
-        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-        const credential = FacebookAuthProvider.credentialFromResult(result);
-        const accessToken = credential.accessToken;
-
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = FacebookAuthProvider.credentialFromError(error);
-
-        // ...
-      });
   }
 
   const handleSignOut = () => {
@@ -182,20 +155,17 @@ const App = () => {
           <button onClick={handleSignIn}>Sign in with Google</button>
       }
       <br />
-      <button onClick={handleFbSignIn}>Login using facebook</button>
       <br />
 
       {
         accountUser.isSignedIn && <div> <p> {accountUser.name}, You are successfully Logged in. </p> <p>Your email: {accountUser.email} </p> <img src={accountUser.photo && accountUser.photo} alt="" /></div>
       }
 
-      <h1>Our Authentication System</h1>
-
-      <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser22" />
-      <label htmlFor="newUser22">New User Sign Up</label>
 
       {/* Form Started */}
-
+      <h1>Fire Auth System</h1>
+      <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser22" />
+      <label htmlFor="newUser22">New User Sign Up</label>
       <form onSubmit={handleSubmit}>
         {newUser && <input type="text" required name="name" onBlur={handleBlur} id="" placeholder='your name' />}
         <br />
@@ -204,12 +174,16 @@ const App = () => {
         <input type="password" name='password' onBlur={handleBlur} required placeholder='Enter your passoword' />
         <br />
         <input type="submit" value={newUser ? 'Sign up' : 'Sign in'} />
-
       </form>
+      {/* Form Ended */}
+
+
+      {/* Passwor Sign in Error or Success message started */}
       <p style={{ color: 'red' }} >{accountUser.error}</p>
       {
         accountUser.success && <p style={{ color: 'green' }} > {accountUser.name}, Account {newUser ? 'created' : 'logged in'} successfully</p>
       }
+      {/* Passwor Sign in Error or Success message ended */}
 
     </div>
   );
