@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { initializeApp } from 'firebase/app'
 import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth';
+import "./App.css"
 
 
 const App = () => {
@@ -35,7 +36,6 @@ const App = () => {
       .then((result) => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
-        console.log(token)
         if (result.user) {
           const { displayName, photoURL, email } = result.user;
           const signedInUser = {
@@ -148,43 +148,51 @@ const App = () => {
 
 
   return (
-    <div>
-      {
-        accountUser.isSignedIn ?
-          <button onClick={handleSignOut}>Sign out</button> :
-          <button onClick={handleSignIn}>Sign in with Google</button>
-      }
-      <br />
-      <br />
+    <div className='App'>
+      <div className='form-border'>
+        <div className='loginui'>
+          <div className='form-space'>
+            {
+              accountUser.isSignedIn ?
+                <button onClick={handleSignOut}>Sign out</button> :
+                <button onClick={handleSignIn}>Sign in with Google</button>
+            }
 
-      {
-        accountUser.isSignedIn && <div> <p> {accountUser.name}, You are successfully Logged in. </p> <p>Your email: {accountUser.email} </p> <img src={accountUser.photo && accountUser.photo} alt="" /></div>
-      }
+            {
+              accountUser.isSignedIn && <div> <p> {accountUser.name}, You are successfully Logged in. </p> <p>Your email: {accountUser.email} </p> <img src={accountUser.photo && accountUser.photo} alt="" /></div>
+            }
+          </div>
+
+        </div>
+
+        <div className='loginui'>
+          <div className='form-space'>
+            {/* Form Started */}
+            <h1>Fire Auth System</h1>
+            <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser22" />
+            <label htmlFor="newUser22">New User Sign Up</label>
+            <form onSubmit={handleSubmit}>
+              {newUser && <input type="text" required name="name" onBlur={handleBlur} id="" placeholder='your name' />}
+              <br />
+              <input type="text" name='email' onBlur={handleBlur} required placeholder='Enter your email' />
+              <br />
+              <input type="password" name='password' onBlur={handleBlur} required placeholder='Enter your passoword' />
+              <br />
+              <input type="submit" value={newUser ? 'Sign up' : 'Sign in'} />
+            </form>
+            {/* Form Ended */}
 
 
-      {/* Form Started */}
-      <h1>Fire Auth System</h1>
-      <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser22" />
-      <label htmlFor="newUser22">New User Sign Up</label>
-      <form onSubmit={handleSubmit}>
-        {newUser && <input type="text" required name="name" onBlur={handleBlur} id="" placeholder='your name' />}
-        <br />
-        <input type="text" name='email' onBlur={handleBlur} required placeholder='Enter your email' />
-        <br />
-        <input type="password" name='password' onBlur={handleBlur} required placeholder='Enter your passoword' />
-        <br />
-        <input type="submit" value={newUser ? 'Sign up' : 'Sign in'} />
-      </form>
-      {/* Form Ended */}
+            {/* Passwor Sign in Error or Success message started */}
+            <p style={{ color: 'red' }} >{accountUser.error}</p>
+            {
+              accountUser.success && <p style={{ color: 'green' }} > {accountUser.name}, Account {newUser ? 'created' : 'logged in'} successfully</p>
+            }
+            {/* Passwor Sign in Error or Success message ended */}
 
-
-      {/* Passwor Sign in Error or Success message started */}
-      <p style={{ color: 'red' }} >{accountUser.error}</p>
-      {
-        accountUser.success && <p style={{ color: 'green' }} > {accountUser.name}, Account {newUser ? 'created' : 'logged in'} successfully</p>
-      }
-      {/* Passwor Sign in Error or Success message ended */}
-
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

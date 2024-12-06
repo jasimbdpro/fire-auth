@@ -1,0 +1,28 @@
+.App{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.loginui{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-border{
+ border: 1px solid #80808070;
+ border-radius: 10px;
+}
+
+.form-space{
+    padding: 10px;
+}
+@media (prefers-color-scheme: dark) {
+    body {
+      background-color: black;
+      color: rgb(194, 194, 194);
+    }
+  }
+  form > input{
+    margin-top: 5px;
+  }
